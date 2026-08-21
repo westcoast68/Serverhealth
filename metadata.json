@@ -1,0 +1,6 @@
+{
+  "name": "SysAdmin Ops & Server Management Hub",
+  "description": "Comprehensive IT administration platform with server patching strategies, enterprise application installation engines, automated playbook generators, interactive terminal lab simulator, and AI SysAdmin troubleshooting assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
