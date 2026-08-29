@@ -1,130 +1,165 @@
-export type OsFamily = 'debian' | 'rhel' | 'suse' | 'arch' | 'windows';
+export type AwsDomain = 
+  | 'compute' 
+  | 'storage' 
+  | 'networking' 
+  | 'database' 
+  | 'security' 
+  | 'management';
 
-export type AppCategory = 
-  | 'web-servers'
-  | 'databases'
-  | 'containers'
-  | 'monitoring'
-  | 'security'
-  | 'runtimes';
+export type AwsService = 
+  | 'EC2' 
+  | 'Lambda' 
+  | 'ECS' 
+  | 'S3' 
+  | 'EBS' 
+  | 'EFS' 
+  | 'VPC' 
+  | 'Route 53' 
+  | 'CloudFront' 
+  | 'RDS' 
+  | 'DynamoDB' 
+  | 'IAM' 
+  | 'KMS' 
+  | 'CloudWatch' 
+  | 'CloudTrail';
 
-export interface PatchCommandGuide {
-  id: string;
-  osName: string;
-  osFamily: OsFamily;
-  packageManager: string;
-  checkUpdatesCmd: string;
-  securityOnlyCmd: string;
-  fullUpgradeCmd: string;
-  singlePackageCmd: string;
-  holdPackageCmd: string;
-  unholdPackageCmd: string;
-  historyAndRollbackCmd: string;
-  cleanCacheCmd: string;
-  liveKernelPatchCmd: string;
-  rebootCheckCmd: string;
-  autoUpdateSetup: string;
-  proTips: string[];
-  caveats: string[];
-}
-
-export interface PatchLifecycleStage {
-  stageNumber: number;
-  title: string;
-  tagline: string;
-  description: string;
-  keyActions: string[];
-  verificationCommands: string[];
-  riskMitigations: string[];
-  checklist: string[];
-}
-
-export interface MockServer {
-  id: string;
-  hostname: string;
-  role: string;
-  ip: string;
-  os: string;
-  osFamily: OsFamily;
-  kernelVersion: string;
-  uptime: string;
-  patchStatus: 'up-to-date' | 'security-pending' | 'critical-cve' | 'reboot-required';
-  pendingUpdatesCount: number;
-  criticalCveCount: number;
-  cves: {
-    cveId: string;
-    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-    cvssScore: number;
-    packageName: string;
-    description: string;
-    fixVersion: string;
-  }[];
-  maintenanceWindow: string;
-  lastPatched: string;
-}
-
-export interface ApplicationDefinition {
-  id: string;
+export interface ServiceMeta {
+  id: AwsService;
   name: string;
-  category: AppCategory;
+  domain: AwsDomain;
+  tagline: string;
+  iconName: string;
+  color: string;
   description: string;
-  officialSite: string;
-  defaultPort: number | string;
-  popularUses: string[];
-  supportedDistros: {
-    osFamily: OsFamily;
-    osName: string;
-    installBash: string;
-    serviceName: string;
-    configFile: string;
-    verifyCommand: string;
-  }[];
-  systemdUnitExample: string;
-  dockerComposeExample: string;
-  ansibleTaskExample: string;
-  powershellExample?: string;
-  hardeningBestPractices: string[];
-  commonTroubleshooting: {
-    problem: string;
-    symptom: string;
-    fix: string;
-  }[];
+  examWeightPct: number;
+  coreConcepts: string[];
+  commonGotchas: string[];
+  keyTradeoffs: string[];
 }
 
-export interface LabScenario {
+export interface ServiceMasteryStats {
+  service: AwsService;
+  domain: AwsDomain;
+  masteryScore: number; // 0 to 100
+  totalAttempts: number;
+  correctAttempts: number;
+  wrongAttempts: number;
+  streak: number;
+  confidenceLevel: 'High' | 'Moderate' | 'Low' | 'Critical Gap';
+  lastStudiedAt: string | null;
+  gapWeight: number; // dynamically computed, higher = prioritize first
+  recentMistakes: string[];
+}
+
+export interface DomainMasteryStats {
+  domain: AwsDomain;
+  name: string;
+  color: string;
+  services: AwsService[];
+  averageMastery: number;
+  totalAttempts: number;
+  correctAttempts: number;
+  status: 'Mastered' | 'Strong' | 'Needs Practice' | 'Critical Gap';
+}
+
+export interface QuizOption {
+  id: string; // 'A' | 'B' | 'C' | 'D'
+  text: string;
+}
+
+export interface QuizQuestion {
   id: string;
-  title: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  timeEstimate: string;
-  category: 'patching' | 'installation' | 'troubleshooting' | 'security';
-  description: string;
-  scenarioBriefing: string;
-  targetObjective: string;
-  initialFs: Record<string, string>;
-  initialServices: Record<string, 'active' | 'inactive' | 'failed'>;
-  steps: {
-    instruction: string;
-    hint: string;
-    expectedCommandRegex: RegExp | string;
-    explanation: string;
-  }[];
-  congratulationMessage: string;
+  domain: AwsDomain;
+  service: AwsService;
+  scenario: string;
+  options: QuizOption[];
+  correctOptionId: string;
+  explanation: string;
+  architectureTip: string;
+  whyWrong: Record<string, string>; // e.g. { 'A': '...', 'C': '...' }
+  difficulty: 'Foundational' | 'Associate' | 'Deep Dive';
+  tags: string[];
+  isAiGenerated?: boolean;
 }
 
-export interface AdminChecklistItem {
+export interface Flashcard {
   id: string;
-  category: 'Patching & Maintenance' | 'Service Installation & Hardening' | 'Disaster Recovery' | 'Monitoring & Logs';
-  title: string;
-  description: string;
-  impactLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM';
-  commandExample?: string;
-  completed: boolean;
+  domain: AwsDomain;
+  service: AwsService;
+  front: string;
+  back: string;
+  architectureContext: string;
+  examGotcha: string;
+  boxLevel: number; // Leitner box 1 to 5
+  lastReviewedAt?: string;
+  nextReviewDue?: string;
+  consecutiveCorrect: number;
+  status: 'new' | 'learning' | 'review' | 'mastered';
 }
 
-export interface CheatSheetEntry {
-  category: string;
-  title: string;
-  command: string;
-  description: string;
-  flags?: string;
+export interface MockExamQuestionAnswer {
+  questionId: string;
+  selectedOptionId: string | null;
+  isCorrect: boolean;
+  timeSpentSeconds: number;
+  markedForReview: boolean;
 }
+
+export interface MockExamResult {
+  id: string;
+  timestamp: string;
+  totalQuestions: number;
+  correctCount: number;
+  scorePercentage: number;
+  passingScore: number; // 72%
+  isPassed: boolean;
+  totalTimeSeconds: number;
+  domainScores: Record<AwsDomain, { correct: number; total: number; percentage: number }>;
+  weakestServicesFound: AwsService[];
+  answers: MockExamQuestionAnswer[];
+}
+
+export interface StudyPlanItem {
+  id: string;
+  priorityRank: number;
+  domain: AwsDomain;
+  service: AwsService;
+  currentMastery: number;
+  urgency: 'HIGH' | 'MEDIUM' | 'LOW';
+  gapReason: string;
+  recommendedAction: string;
+  targetMode: 'quiz' | 'flashcards' | 'exam' | 'copilot';
+  estimatedMinutes: number;
+}
+
+export interface UserProgressState {
+  services: Record<AwsService, ServiceMasteryStats>;
+  customNotes: Record<string, string>;
+  bookmarkedQuestionIds: string[];
+  bookmarkedCardIds: string[];
+  examHistory: MockExamResult[];
+  dailyStreak: number;
+  lastActiveDate: string;
+  totalQuestionsAnswered: number;
+  totalCardsReviewed: number;
+}
+
+export interface AiDiagnosticReport {
+  timestamp: string;
+  overallReadinessScore: number; // 0-1000 scaled
+  readinessVerdict: 'Ready to Book Exam' | 'High Likelihood Pass' | 'Moderate Gap Risk' | 'Critical Review Required';
+  topWeaknesses: {
+    service: AwsService;
+    domain: AwsDomain;
+    estimatedGap: string;
+    suggestedFocus: string;
+  }[];
+  topStrengths: {
+    service: AwsService;
+    domain: AwsDomain;
+    mastery: string;
+  }[];
+  strategicPrescription: string[];
+  targetedActionPlan: string;
+}
+

@@ -1,6 +1,6 @@
 {
-  "name": "SysAdmin Ops & Server Management Hub",
-  "description": "Comprehensive IT administration platform with server patching strategies, enterprise application installation engines, automated playbook generators, interactive terminal lab simulator, and AI SysAdmin troubleshooting assistant.",
+  "name": "AWS Core Adaptive Exam & Gap Mastery Engine",
+  "description": "AI-powered adaptive learning engine for AWS Core Fundamentals. Automatically identifies knowledge gaps across Compute, Storage, Networking, Database, Security, and Monitoring, generating targeted quizzes, flashcards, and mock exams that prioritize weakest domains first in real time.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

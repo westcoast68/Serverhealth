@@ -1,28 +1,26 @@
-import React, { useState } from 'react';
-import { Header } from './components/Header';
-import { PatchingHub } from './components/patching/PatchingHub';
-import { AppInstallHub } from './components/install/AppInstallHub';
-import { TerminalSimulator } from './components/terminal/TerminalSimulator';
-import { KnowledgeHub } from './components/knowledge/KnowledgeHub';
-import { AiCopilotDrawer } from './components/copilot/AiCopilotDrawer';
-import { INITIAL_MOCK_SERVERS } from './data/patchingData';
-import { MockServer } from './types';
-import { 
-  CheckCircle2, 
-  AlertTriangle, 
-  Sparkles, 
-  Terminal, 
-  ShieldCheck, 
-  Download,
-  Info
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Header, ActiveTab } from './components/Header';
+import { AdaptiveDashboard } from './components/dashboard/AdaptiveDashboard';
+import { AdaptiveQuizEngine } from './components/quiz/AdaptiveQuizEngine';
+import { SpacedFlashcardDeck } from './components/flashcards/SpacedFlashcardDeck';
+import { MockExamSimulator } from './components/mock/MockExamSimulator';
+import { ArchitectCopilot } from './components/architect/ArchitectCopilot';
+import { BudgetArchitectureModal } from './components/budget/BudgetArchitectureModal';
+import { INITIAL_USER_PROGRESS } from './data/awsData';
+import { UserProgressState, AwsService } from './types';
+import { loadUserState, saveUserState } from './utils/adaptiveEngine';
+import { CheckCircle2, Info, AlertTriangle } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'patching' | 'install' | 'terminal' | 'knowledge'>('patching');
-  const [servers, setServers] = useState<MockServer[]>(INITIAL_MOCK_SERVERS);
-  const [isCopilotOpen, setIsCopilotOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [userState, setUserState] = useState<UserProgressState>(() => {
+    return loadUserState() || INITIAL_USER_PROGRESS;
+  });
+
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState<boolean>(false);
+  const [quizServiceFilter, setQuizServiceFilter] = useState<AwsService | null>(null);
+  const [flashcardServiceFilter, setFlashcardServiceFilter] = useState<AwsService | null>(null);
   const [copilotInitialPrompt, setCopilotInitialPrompt] = useState<string>('');
-  const [selectedLabId, setSelectedLabId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'warn' } | null>(null);
 
   const showToast = (text: string, type: 'success' | 'info' | 'warn' = 'info') => {
@@ -30,130 +28,143 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  const handlePatchServer = (serverId: string) => {
-    setServers(prev => prev.map(s => {
-      if (s.id === serverId) {
-        return {
-          ...s,
-          patchStatus: 'up-to-date',
-          pendingUpdatesCount: 0,
-          criticalCveCount: 0,
-          cves: [],
-          lastPatched: new Date().toISOString().split('T')[0]
-        };
-      }
-      return s;
-    }));
-    showToast(`Applied security patches to ${serverId}. Host is now compliant.`, 'success');
+  const handleUpdateState = (newState: UserProgressState) => {
+    setUserState(newState);
+    saveUserState(newState);
   };
 
-  const handlePatchAllServers = () => {
-    setServers(prev => prev.map(s => ({
-      ...s,
-      patchStatus: 'up-to-date',
-      pendingUpdatesCount: 0,
-      criticalCveCount: 0,
-      cves: [],
-      lastPatched: new Date().toISOString().split('T')[0]
-    })));
-    showToast('Executed staged canary rollout across entire fleet. All 7 hosts are compliant!', 'success');
+  const handleResetProgress = () => {
+    setUserState(INITIAL_USER_PROGRESS);
+    saveUserState(INITIAL_USER_PROGRESS);
+    showToast('Reset mastery profile to baseline diagnostic state.', 'info');
   };
 
-  const handleLaunchLab = (labId?: string) => {
-    if (labId) {
-      setSelectedLabId(labId);
+  const handleExportProgress = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userState, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `aws_mastery_profile_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('Exported student mastery profile to JSON.', 'success');
+  };
+
+  const handleNavigateToQuiz = (serviceFilter?: AwsService) => {
+    setQuizServiceFilter(serviceFilter || null);
+    setActiveTab('quiz');
+    if (serviceFilter) {
+      showToast(`Filtered quiz to target ${serviceFilter} gaps.`, 'info');
     }
-    setActiveTab('terminal');
-    showToast('Switched to Interactive Lab Terminal.', 'info');
   };
 
-  const handleAskCopilotAboutApp = (appName: string) => {
-    setCopilotInitialPrompt(`How do I deploy, harden, and configure systemd security sandboxing for ${appName} on Linux production servers?`);
-    setIsCopilotOpen(true);
+  const handleNavigateToFlashcards = (serviceFilter?: AwsService) => {
+    setFlashcardServiceFilter(serviceFilter || null);
+    setActiveTab('flashcards');
+    if (serviceFilter) {
+      showToast(`Loaded flashcards for ${serviceFilter}.`, 'info');
+    }
   };
 
-  const criticalCveCount = servers.reduce((acc, s) => acc + s.criticalCveCount, 0);
-  const securityPendingCount = servers.reduce((acc, s) => acc + s.pendingUpdatesCount, 0);
+  const handleNavigateToCopilot = (initialTopic?: string) => {
+    setCopilotInitialPrompt(initialTopic || '');
+    setActiveTab('copilot');
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Top Header */}
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
+      {/* Header */}
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenCopilot={() => {
-          setCopilotInitialPrompt('');
-          setIsCopilotOpen(true);
-        }}
-        criticalCveCount={criticalCveCount}
-        securityPendingCount={securityPendingCount}
+        userState={userState}
+        onOpenBudgetModal={() => setIsBudgetModalOpen(true)}
+        onResetProgress={handleResetProgress}
+        onExportProgress={handleExportProgress}
       />
 
-      {/* Main Workspace Container */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-2.5 sm:px-4 lg:px-6 py-3.5 space-y-4">
-        {activeTab === 'patching' && (
-          <PatchingHub
-            servers={servers}
-            onPatchServer={handlePatchServer}
-            onPatchAllServers={handlePatchAllServers}
-            onLaunchLab={handleLaunchLab}
+      {/* Main Workspace Content */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {activeTab === 'dashboard' && (
+          <AdaptiveDashboard
+            userState={userState}
+            onNavigateToQuiz={handleNavigateToQuiz}
+            onNavigateToFlashcards={handleNavigateToFlashcards}
+            onNavigateToExam={() => setActiveTab('exam')}
+            onNavigateToCopilot={handleNavigateToCopilot}
           />
         )}
 
-        {activeTab === 'install' && (
-          <AppInstallHub
-            onLaunchLab={handleLaunchLab}
-            onAskCopilotAboutApp={handleAskCopilotAboutApp}
+        {activeTab === 'quiz' && (
+          <AdaptiveQuizEngine
+            userState={userState}
+            onUpdateState={handleUpdateState}
+            initialServiceFilter={quizServiceFilter}
           />
         )}
 
-        {activeTab === 'terminal' && (
-          <TerminalSimulator
-            initialLabId={selectedLabId}
-            onClearInitialLab={() => setSelectedLabId(null)}
+        {activeTab === 'flashcards' && (
+          <SpacedFlashcardDeck
+            userState={userState}
+            onUpdateState={handleUpdateState}
+            initialServiceFilter={flashcardServiceFilter}
           />
         )}
 
-        {activeTab === 'knowledge' && (
-          <KnowledgeHub />
+        {activeTab === 'exam' && (
+          <MockExamSimulator
+            userState={userState}
+            onUpdateState={handleUpdateState}
+          />
+        )}
+
+        {activeTab === 'copilot' && (
+          <ArchitectCopilot
+            userState={userState}
+            initialTopic={copilotInitialPrompt}
+            onNavigateToQuiz={handleNavigateToQuiz}
+          />
         )}
       </main>
 
+      {/* Budget & Architecture Tooling Guide Modal */}
+      <BudgetArchitectureModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+      />
+
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-4 right-4 z-50 animate-bounce">
-          <div className={`px-3 py-2 rounded-lg shadow-xl border text-xs font-mono flex items-center space-x-2 ${
+        <div className="fixed bottom-5 right-5 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
+          <div className={`px-4 py-2.5 rounded-xl shadow-2xl border text-xs font-semibold flex items-center gap-2.5 ${
             toastMessage.type === 'success' ? 'bg-emerald-950/90 border-emerald-500/60 text-emerald-200' :
             toastMessage.type === 'warn' ? 'bg-amber-950/90 border-amber-500/60 text-amber-200' :
-            'bg-slate-900 border-indigo-500/60 text-indigo-200'
+            'bg-slate-900/90 border-slate-700 text-slate-200'
           }`}>
-            {toastMessage.type === 'success' && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
-            {toastMessage.type === 'warn' && <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />}
-            {toastMessage.type === 'info' && <Info className="h-3.5 w-3.5 text-indigo-400" />}
+            {toastMessage.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+            {toastMessage.type === 'warn' && <AlertTriangle className="w-4 h-4 text-amber-400" />}
+            {toastMessage.type === 'info' && <Info className="w-4 h-4 text-amber-400" />}
             <span>{toastMessage.text}</span>
           </div>
         </div>
       )}
 
-      {/* AI SysAdmin Drawer */}
-      <AiCopilotDrawer
-        isOpen={isCopilotOpen}
-        onClose={() => setIsCopilotOpen(false)}
-        initialPrompt={copilotInitialPrompt}
-      />
-
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-2.5 text-center text-[11px] text-slate-500 font-mono">
-        <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-1.5">
-          <span>SYSADMIN.OPS v2.4 • Production Server Infrastructure & Deployment Control</span>
-          <div className="flex items-center space-x-3 text-slate-400">
-            <span>DEB/UBUNTU</span>
+      <footer className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>AWS Core Fundamentals Adaptive Mastery Engine • 14 Services Across 6 Core Domains</span>
+          <div className="flex items-center space-x-3 text-slate-400 font-mono text-[11px]">
+            <span>COMPUTE</span>
             <span>•</span>
-            <span>RHEL/ROCKY</span>
+            <span>STORAGE</span>
             <span>•</span>
-            <span>SLES</span>
+            <span>NETWORKING</span>
             <span>•</span>
-            <span>WIN-SRV</span>
+            <span>DATABASE</span>
+            <span>•</span>
+            <span>SECURITY</span>
+            <span>•</span>
+            <span>MONITORING</span>
           </div>
         </div>
       </footer>
