@@ -36,16 +36,14 @@ export const ArchitectCopilot: React.FC<Props> = ({ userState, initialTopic, onN
     {
       id: 'init-1',
       sender: 'ai',
-      text: `Hello! I am your **AWS Principal Solutions Architect & Certification Coach**.
-Ask me any AWS tradeoff question, architecture decision, tricky concept, or exam gotcha across our 6 core domains:
-* **Compute:** EC2, Lambda, ECS
-* **Storage:** S3, EBS, EFS
-* **Networking:** VPC, Route 53, CloudFront
-* **Database:** RDS, DynamoDB
-* **Security & Identity:** IAM, KMS
-* **Management & Monitoring:** CloudWatch, CloudTrail
+      text: `Hello! I am your **AWS Compute Principal Solutions Architect & Certification Coach**.
+Ask me any AWS Compute tradeoff question, architecture decision, tricky concept, or exam gotcha across:
+* **EC2:** Instance types, Nitro, Spot/Savings Plans, EBS optimization, Placement Groups
+* **Lambda:** Cold starts, Concurrency, VPC networking, Provisioned Concurrency, Event sources
+* **ECS & Fargate:** Task definitions, Capacity Providers, Service Auto Scaling, Networking modes
+* **Compute Scaling & Resilience:** ASG lifecycle hooks, Target tracking, Multi-AZ high availability
 
-What would you like to clarify?`,
+What compute architecture question would you like to clarify?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -53,12 +51,12 @@ What would you like to clarify?`,
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const quickPrompts = [
-    'When should I choose Amazon EFS over EBS and S3?',
-    'Explain public vs private subnet routing with NAT Gateways',
-    'What is the exact difference between CloudWatch and CloudTrail?',
-    'When to use DynamoDB DAX vs ElastiCache Redis?',
-    'IAM Policy evaluation logic: Explicit Deny vs Allow',
-    'EC2 Spot vs On-Demand vs Savings Plans cost tradeoffs'
+    'When should I choose ECS Fargate vs Lambda for microservices?',
+    'Explain EC2 Spot Instances vs On-Demand vs Compute Savings Plans',
+    'How do Lambda Reserved Concurrency and Provisioned Concurrency differ?',
+    'What is the difference between ECS awsvpc and bridge network modes?',
+    'How to prevent Lambda cold starts without overpaying?',
+    'How do Auto Scaling lifecycle hooks allow graceful EC2 termination?'
   ];
 
   const handleSendMessage = async (customText?: string) => {

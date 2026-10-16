@@ -13,12 +13,15 @@ import {
   Layers, 
   ShieldCheck, 
   Play,
-  Sparkles
+  Sparkles,
+  Radar
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { QuizQuestion, UserProgressState, AwsDomain, AwsService } from '../../types';
 import { INITIAL_QUIZ_QUESTIONS, AWS_DOMAINS, AWS_SERVICES_META } from '../../data/awsData';
 import { updateMasteryOnQuizAnswer, computeGapWeight } from '../../utils/adaptiveEngine';
+import { QuestionScenarioRadar } from '../radar/QuestionScenarioRadar';
+import { scanQuestionRadar, RADAR_CATEGORY_META } from '../../utils/keywordRadar';
 
 interface Props {
   userState: UserProgressState;
@@ -38,6 +41,8 @@ export const MockExamSimulator: React.FC<Props> = ({ userState, onUpdateState })
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
   const [secondsRemaining, setSecondsRemaining] = useState<number>(20 * 60);
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
+  const [radarAssisted, setRadarAssisted] = useState<boolean>(false);
+  const [reviewRadarEnabled, setReviewRadarEnabled] = useState<boolean>(true);
 
   // Exam Result state
   const [examResult, setExamResult] = useState<{
@@ -110,12 +115,12 @@ export const MockExamSimulator: React.FC<Props> = ({ userState, onUpdateState })
   const handleFinishExam = () => {
     let correct = 0;
     const domainMap: Record<AwsDomain, { total: number; correct: number; percentage: number }> = {
-      compute: { total: 0, correct: 0, percentage: 0 },
-      storage: { total: 0, correct: 0, percentage: 0 },
-      networking: { total: 0, correct: 0, percentage: 0 },
-      database: { total: 0, correct: 0, percentage: 0 },
-      security: { total: 0, correct: 0, percentage: 0 },
-      management: { total: 0, correct: 0, percentage: 0 },
+      ec2_instances: { total: 0, correct: 0, percentage: 0 },
+      lambda_serverless: { total: 0, correct: 0, percentage: 0 },
+      ecs_fargate: { total: 0, correct: 0, percentage: 0 },
+      scaling_resilience: { total: 0, correct: 0, percentage: 0 },
+      cost_optimization: { total: 0, correct: 0, percentage: 0 },
+      security_isolation: { total: 0, correct: 0, percentage: 0 },
     };
 
     let updatedState = { ...userState };
@@ -186,20 +191,23 @@ export const MockExamSimulator: React.FC<Props> = ({ userState, onUpdateState })
               <Timer className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-100 font-display">AWS Core Fundamentals Mock Exam Simulator</h2>
-              <p className="text-xs text-slate-400">Timed exam environment with real-time scaled scoring (Pass = 720/1000)</p>
+              <h2 className="text-xl font-bold text-slate-100 font-display">AWS Compute Mastery Mock Exam Simulator</h2>
+              <p className="text-xs text-slate-400">Timed exam environment covering EC2, Lambda, ECS, Scaling & Security (Pass = 720/1000)</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-slate-300 block mb-2">Question Count:</label>
-              <div className="grid grid-cols-3 gap-3">
-                {[10, 15, 25].map(cnt => (
+              <div className="grid grid-cols-4 gap-2.5">
+                {[10, 15, 25, 50].map(cnt => (
                   <button
                     key={cnt}
-                    onClick={() => { setQuestionCount(cnt); setTimeLimitMinutes(cnt === 10 ? 12 : cnt === 15 ? 20 : 30); }}
-                    className={`py-3 rounded-xl border text-xs font-bold transition-all ${
+                    onClick={() => { 
+                      setQuestionCount(cnt); 
+                      setTimeLimitMinutes(cnt === 10 ? 12 : cnt === 15 ? 20 : cnt === 25 ? 35 : 65); 
+                    }}
+                    className={`py-3 px-2 rounded-xl border text-xs font-bold transition-all ${
                       questionCount === cnt ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md shadow-amber-500/20' : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800'
                     }`}
                   >
@@ -316,11 +324,13 @@ export const MockExamSimulator: React.FC<Props> = ({ userState, onUpdateState })
             })}
           </div>
 
-          {/* Active Question Box */}
+          {/* Active Question Box with Keyword Radar */}
           <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6">
-            <h3 className="text-base sm:text-lg font-medium text-slate-100 leading-relaxed font-sans">
-              {currentQ.scenario}
-            </h3>
+            <QuestionScenarioRadar
+              question={currentQ}
+              radarEnabled={radarAssisted}
+              onToggleRadar={() => setRadarAssisted(!radarAssisted)}
+            />
 
             <div className="space-y-3 pt-2">
               {currentQ.options.map(opt => {
@@ -484,7 +494,11 @@ export const MockExamSimulator: React.FC<Props> = ({ userState, onUpdateState })
                     </div>
                   </div>
 
-                  <p className="text-sm text-slate-200 leading-relaxed font-sans">{q.scenario}</p>
+                  <QuestionScenarioRadar
+                    question={q}
+                    radarEnabled={reviewRadarEnabled}
+                    onToggleRadar={() => setReviewRadarEnabled(!reviewRadarEnabled)}
+                  />
 
                   <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-300 space-y-1">
                     <div className="font-bold text-emerald-400">

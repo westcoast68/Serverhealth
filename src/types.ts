@@ -1,27 +1,15 @@
 export type AwsDomain = 
-  | 'compute' 
-  | 'storage' 
-  | 'networking' 
-  | 'database' 
-  | 'security' 
-  | 'management';
+  | 'ec2_instances' 
+  | 'lambda_serverless' 
+  | 'ecs_fargate' 
+  | 'scaling_resilience' 
+  | 'cost_optimization' 
+  | 'security_isolation';
 
 export type AwsService = 
   | 'EC2' 
   | 'Lambda' 
-  | 'ECS' 
-  | 'S3' 
-  | 'EBS' 
-  | 'EFS' 
-  | 'VPC' 
-  | 'Route 53' 
-  | 'CloudFront' 
-  | 'RDS' 
-  | 'DynamoDB' 
-  | 'IAM' 
-  | 'KMS' 
-  | 'CloudWatch' 
-  | 'CloudTrail';
+  | 'ECS';
 
 export interface ServiceMeta {
   id: AwsService;
@@ -67,6 +55,13 @@ export interface QuizOption {
   text: string;
 }
 
+export interface KeywordRadarSignal {
+  keyword: string;
+  category: 'constraint' | 'workload' | 'architecture' | 'trap';
+  meaning: string;
+  targetConcept?: string;
+}
+
 export interface QuizQuestion {
   id: string;
   domain: AwsDomain;
@@ -80,6 +75,7 @@ export interface QuizQuestion {
   difficulty: 'Foundational' | 'Associate' | 'Deep Dive';
   tags: string[];
   isAiGenerated?: boolean;
+  keywordRadar?: KeywordRadarSignal[];
 }
 
 export interface Flashcard {

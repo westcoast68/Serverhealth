@@ -15,12 +15,14 @@ import {
   Layers,
   Lightbulb,
   Zap,
-  Info
+  Info,
+  Radar
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { QuizQuestion, UserProgressState, AwsDomain, AwsService } from '../../types';
 import { INITIAL_QUIZ_QUESTIONS, AWS_DOMAINS, AWS_SERVICES_META } from '../../data/awsData';
 import { updateMasteryOnQuizAnswer, computeGapWeight } from '../../utils/adaptiveEngine';
+import { QuestionScenarioRadar } from '../radar/QuestionScenarioRadar';
 
 interface Props {
   userState: UserProgressState;
@@ -43,6 +45,7 @@ export const AdaptiveQuizEngine: React.FC<Props> = ({
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState<boolean>(false);
   const [feedbackDelta, setFeedbackDelta] = useState<{ service: AwsService; isCorrect: boolean; oldScore: number; newScore: number } | null>(null);
+  const [radarEnabled, setRadarEnabled] = useState<boolean>(true);
 
   // AI Generation State
   const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(false);
@@ -274,12 +277,12 @@ export const AdaptiveQuizEngine: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Scenario Text */}
-          <div className="space-y-2">
-            <h3 className="text-base sm:text-lg font-medium text-slate-100 leading-relaxed font-sans">
-              {currentQuestion.scenario}
-            </h3>
-          </div>
+          {/* Scenario Text with Keyword Radar */}
+          <QuestionScenarioRadar
+            question={currentQuestion}
+            radarEnabled={radarEnabled}
+            onToggleRadar={() => setRadarEnabled(!radarEnabled)}
+          />
 
           {/* 4 Options List */}
           <div className="space-y-3 pt-2">

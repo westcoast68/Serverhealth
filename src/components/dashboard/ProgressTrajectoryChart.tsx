@@ -144,22 +144,22 @@ export const ProgressTrajectoryChart: React.FC<Props> = ({
             {viewMode === 'domains' && (
               <div className="space-y-1 text-[11px]">
                 <div className="flex justify-between text-orange-400">
-                  <span>Compute:</span> <strong>{dataPoint.computeMastery}%</strong>
+                  <span>EC2 Virtual Servers:</span> <strong>{dataPoint.ec2Mastery}%</strong>
                 </div>
-                <div className="flex justify-between text-blue-400">
-                  <span>Storage:</span> <strong>{dataPoint.storageMastery}%</strong>
+                <div className="flex justify-between text-amber-400">
+                  <span>Lambda Serverless:</span> <strong>{dataPoint.lambdaMastery}%</strong>
                 </div>
-                <div className="flex justify-between text-purple-400">
-                  <span>Networking:</span> <strong>{dataPoint.networkingMastery}%</strong>
+                <div className="flex justify-between text-cyan-400">
+                  <span>ECS & Fargate:</span> <strong>{dataPoint.ecsMastery}%</strong>
                 </div>
                 <div className="flex justify-between text-emerald-400">
-                  <span>Database:</span> <strong>{dataPoint.databaseMastery}%</strong>
+                  <span>Auto Scaling & HA:</span> <strong>{dataPoint.scalingMastery}%</strong>
+                </div>
+                <div className="flex justify-between text-purple-400">
+                  <span>Cost Optimization:</span> <strong>{dataPoint.costMastery}%</strong>
                 </div>
                 <div className="flex justify-between text-rose-400">
-                  <span>Security:</span> <strong>{dataPoint.securityMastery}%</strong>
-                </div>
-                <div className="flex justify-between text-pink-400">
-                  <span>Management:</span> <strong>{dataPoint.managementMastery}%</strong>
+                  <span>Compute Security:</span> <strong>{dataPoint.securityMastery}%</strong>
                 </div>
               </div>
             )}
@@ -562,12 +562,12 @@ export const ProgressTrajectoryChart: React.FC<Props> = ({
               <Tooltip content={<CustomTooltip />} />
               <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', color: '#94A3B8' }} />
 
-              <Line type="monotone" dataKey="computeMastery" name="Compute (EC2, Lambda, ECS)" stroke="#F97316" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="storageMastery" name="Storage (S3, EBS, EFS)" stroke="#3B82F6" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="networkingMastery" name="Networking (VPC, R53, CF)" stroke="#8B5CF6" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="databaseMastery" name="Database (RDS, DynamoDB)" stroke="#10B981" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="securityMastery" name="Security (IAM, KMS)" stroke="#EF4444" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="managementMastery" name="Management (CW, CT)" stroke="#EC4899" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="ec2Mastery" name="EC2 Virtual Instances" stroke="#F97316" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="lambdaMastery" name="Lambda Serverless" stroke="#F59E0B" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="ecsMastery" name="ECS & Fargate Containers" stroke="#06B6D4" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="scalingMastery" name="Auto Scaling & Resilience" stroke="#10B981" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="costMastery" name="Cost Optimization" stroke="#A855F7" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="securityMastery" name="Security & Isolation" stroke="#EF4444" strokeWidth={2} dot={false} />
             </LineChart>
           )}
 

@@ -21,12 +21,12 @@ export interface DailyTrajectoryPoint {
   studyMinutes: number;
   
   // Domain masteries
-  computeMastery: number;
-  storageMastery: number;
-  networkingMastery: number;
-  databaseMastery: number;
+  ec2Mastery: number;
+  lambdaMastery: number;
+  ecsMastery: number;
+  scalingMastery: number;
+  costMastery: number;
   securityMastery: number;
-  managementMastery: number;
 }
 
 export interface ServiceRetentionHealth {
@@ -67,12 +67,12 @@ export function generate30DayTrajectory(userState: UserProgressState): DailyTraj
   
   // Base domain scores 30 days ago
   const baseDomainMastery: Record<AwsDomain, number> = {
-    compute: Math.max(15, currentDomainStats.compute.averageMastery - 25),
-    storage: Math.max(20, currentDomainStats.storage.averageMastery - 30),
-    networking: Math.max(10, currentDomainStats.networking.averageMastery - 18),
-    database: Math.max(15, currentDomainStats.database.averageMastery - 26),
-    security: Math.max(25, currentDomainStats.security.averageMastery - 35),
-    management: Math.max(20, currentDomainStats.management.averageMastery - 28),
+    ec2_instances: Math.max(15, (currentDomainStats.ec2_instances?.averageMastery || 40) - 25),
+    lambda_serverless: Math.max(20, (currentDomainStats.lambda_serverless?.averageMastery || 50) - 30),
+    ecs_fargate: Math.max(10, (currentDomainStats.ecs_fargate?.averageMastery || 45) - 22),
+    scaling_resilience: Math.max(15, (currentDomainStats.scaling_resilience?.averageMastery || 55) - 26),
+    cost_optimization: Math.max(25, (currentDomainStats.cost_optimization?.averageMastery || 45) - 30),
+    security_isolation: Math.max(20, (currentDomainStats.security_isolation?.averageMastery || 50) - 28),
   };
 
   for (let i = 29; i >= 0; i--) {
@@ -135,12 +135,12 @@ export function generate30DayTrajectory(userState: UserProgressState): DailyTraj
       studyMinutes: Math.round(((i === 0 ? 4 : approxDailyQuestions) * 1.8) + ((i === 0 ? 3 : approxDailyCards) * 1.1)),
       
       // Domain trajectories
-      computeMastery: Math.min(100, Math.round(baseDomainMastery.compute + (currentDomainStats.compute.averageMastery - baseDomainMastery.compute) * learningVelocity)),
-      storageMastery: Math.min(100, Math.round(baseDomainMastery.storage + (currentDomainStats.storage.averageMastery - baseDomainMastery.storage) * learningVelocity)),
-      networkingMastery: Math.min(100, Math.round(baseDomainMastery.networking + (currentDomainStats.networking.averageMastery - baseDomainMastery.networking) * learningVelocity)),
-      databaseMastery: Math.min(100, Math.round(baseDomainMastery.database + (currentDomainStats.database.averageMastery - baseDomainMastery.database) * learningVelocity)),
-      securityMastery: Math.min(100, Math.round(baseDomainMastery.security + (currentDomainStats.security.averageMastery - baseDomainMastery.security) * learningVelocity)),
-      managementMastery: Math.min(100, Math.round(baseDomainMastery.management + (currentDomainStats.management.averageMastery - baseDomainMastery.management) * learningVelocity)),
+      ec2Mastery: Math.min(100, Math.round(baseDomainMastery.ec2_instances + ((currentDomainStats.ec2_instances?.averageMastery || 40) - baseDomainMastery.ec2_instances) * learningVelocity)),
+      lambdaMastery: Math.min(100, Math.round(baseDomainMastery.lambda_serverless + ((currentDomainStats.lambda_serverless?.averageMastery || 50) - baseDomainMastery.lambda_serverless) * learningVelocity)),
+      ecsMastery: Math.min(100, Math.round(baseDomainMastery.ecs_fargate + ((currentDomainStats.ecs_fargate?.averageMastery || 45) - baseDomainMastery.ecs_fargate) * learningVelocity)),
+      scalingMastery: Math.min(100, Math.round(baseDomainMastery.scaling_resilience + ((currentDomainStats.scaling_resilience?.averageMastery || 55) - baseDomainMastery.scaling_resilience) * learningVelocity)),
+      costMastery: Math.min(100, Math.round(baseDomainMastery.cost_optimization + ((currentDomainStats.cost_optimization?.averageMastery || 45) - baseDomainMastery.cost_optimization) * learningVelocity)),
+      securityMastery: Math.min(100, Math.round(baseDomainMastery.security_isolation + ((currentDomainStats.security_isolation?.averageMastery || 50) - baseDomainMastery.security_isolation) * learningVelocity)),
     };
 
     points.push(point);

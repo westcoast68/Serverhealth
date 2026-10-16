@@ -6,6 +6,8 @@ import { SpacedFlashcardDeck } from './components/flashcards/SpacedFlashcardDeck
 import { MockExamSimulator } from './components/mock/MockExamSimulator';
 import { ArchitectCopilot } from './components/architect/ArchitectCopilot';
 import { BudgetArchitectureModal } from './components/budget/BudgetArchitectureModal';
+import { FocusTimer } from './components/focus/FocusTimer';
+import { RadarLexiconModal } from './components/radar/RadarLexiconModal';
 import { INITIAL_USER_PROGRESS } from './data/awsData';
 import { UserProgressState, AwsService } from './types';
 import { loadUserState, saveUserState } from './utils/adaptiveEngine';
@@ -18,6 +20,8 @@ export default function App() {
   });
 
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState<boolean>(false);
+  const [isFocusTimerOpen, setIsFocusTimerOpen] = useState<boolean>(false);
+  const [isRadarLexiconOpen, setIsRadarLexiconOpen] = useState<boolean>(false);
   const [quizServiceFilter, setQuizServiceFilter] = useState<AwsService | null>(null);
   const [flashcardServiceFilter, setFlashcardServiceFilter] = useState<AwsService | null>(null);
   const [copilotInitialPrompt, setCopilotInitialPrompt] = useState<string>('');
@@ -79,6 +83,8 @@ export default function App() {
         setActiveTab={setActiveTab}
         userState={userState}
         onOpenBudgetModal={() => setIsBudgetModalOpen(true)}
+        onOpenFocusTimer={() => setIsFocusTimerOpen(true)}
+        onOpenRadarLexicon={() => setIsRadarLexiconOpen(true)}
         onResetProgress={handleResetProgress}
         onExportProgress={handleExportProgress}
       />
@@ -131,6 +137,21 @@ export default function App() {
       <BudgetArchitectureModal
         isOpen={isBudgetModalOpen}
         onClose={() => setIsBudgetModalOpen(false)}
+      />
+
+      {/* Deep Focus Study Timer Modal */}
+      <FocusTimer
+        isOpen={isFocusTimerOpen}
+        onClose={() => setIsFocusTimerOpen(false)}
+        onSessionComplete={(mins) => {
+          showToast(`Completed ${mins}m deep focus sprint! Session logged.`, 'success');
+        }}
+      />
+
+      {/* AWS Exam Keyword Radar Decoder Lexicon Modal */}
+      <RadarLexiconModal
+        isOpen={isRadarLexiconOpen}
+        onClose={() => setIsRadarLexiconOpen(false)}
       />
 
       {/* Toast Notification */}

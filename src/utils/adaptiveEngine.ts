@@ -174,7 +174,7 @@ export function updateMasteryOnQuizAnswer(
 ): UserProgressState {
   const current = currentState.services[serviceName] || {
     service: serviceName,
-    domain: AWS_SERVICES_META[serviceName]?.domain || 'compute',
+    domain: AWS_SERVICES_META[serviceName]?.domain || 'ec2_instances',
     masteryScore: 50,
     totalAttempts: 0,
     correctAttempts: 0,

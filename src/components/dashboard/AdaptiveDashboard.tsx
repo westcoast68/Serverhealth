@@ -86,12 +86,12 @@ export const AdaptiveDashboard: React.FC<Props> = ({
 
   const getDomainIcon = (domain: AwsDomain) => {
     switch (domain) {
-      case 'compute': return <Server className="w-4 h-4 text-orange-400" />;
-      case 'storage': return <HardDrive className="w-4 h-4 text-blue-400" />;
-      case 'networking': return <Network className="w-4 h-4 text-purple-400" />;
-      case 'database': return <Database className="w-4 h-4 text-emerald-400" />;
-      case 'security': return <Shield className="w-4 h-4 text-red-400" />;
-      case 'management': return <FileSearch className="w-4 h-4 text-pink-400" />;
+      case 'ec2_instances': return <Server className="w-4 h-4 text-orange-400" />;
+      case 'lambda_serverless': return <Zap className="w-4 h-4 text-amber-400" />;
+      case 'ecs_fargate': return <HardDrive className="w-4 h-4 text-cyan-400" />;
+      case 'scaling_resilience': return <TrendingUp className="w-4 h-4 text-emerald-400" />;
+      case 'cost_optimization': return <Sparkles className="w-4 h-4 text-purple-400" />;
+      case 'security_isolation': return <Shield className="w-4 h-4 text-rose-400" />;
     }
   };
 
@@ -218,8 +218,8 @@ export const AdaptiveDashboard: React.FC<Props> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-100 font-display">AI Deep Gap Diagnostic & Prescription</h2>
-              <p className="text-xs text-slate-400">Gemini 3.7 Flash analyzes your mistake log across all 14 AWS services and prescribes a high-yield study plan</p>
+              <h2 className="text-lg font-bold text-slate-100 font-display">AI Compute Gap Diagnostic & Prescription</h2>
+              <p className="text-xs text-slate-400">Gemini 3.7 Flash analyzes your mistake log across EC2, Lambda, and ECS to prescribe a high-yield study plan</p>
             </div>
           </div>
 
@@ -283,8 +283,8 @@ export const AdaptiveDashboard: React.FC<Props> = ({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-slate-100 font-display">Core AWS Domains Breakdown</h2>
-            <p className="text-xs text-slate-400">Real-time mastery across all 6 foundational domains and 14 services</p>
+            <h2 className="text-xl font-bold text-slate-100 font-display">AWS Compute Pillars Breakdown</h2>
+            <p className="text-xs text-slate-400">Real-time mastery across EC2, Lambda, ECS, Auto Scaling, Cost Optimization, and Security</p>
           </div>
           <button
             onClick={onNavigateToExam}

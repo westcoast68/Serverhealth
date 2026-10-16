@@ -12,7 +12,8 @@ import {
   Upload,
   CheckCircle,
   AlertTriangle,
-  Award
+  Award,
+  Radar
 } from 'lucide-react';
 import { UserProgressState } from '../types';
 import { computeOverallExamReadiness } from '../utils/adaptiveEngine';
@@ -24,6 +25,8 @@ interface Props {
   setActiveTab: (tab: ActiveTab) => void;
   userState: UserProgressState;
   onOpenBudgetModal: () => void;
+  onOpenFocusTimer: () => void;
+  onOpenRadarLexicon: () => void;
   onResetProgress: () => void;
   onExportProgress: () => void;
 }
@@ -33,6 +36,8 @@ export const Header: React.FC<Props> = ({
   setActiveTab,
   userState,
   onOpenBudgetModal,
+  onOpenFocusTimer,
+  onOpenRadarLexicon,
   onResetProgress,
   onExportProgress
 }) => {
@@ -63,14 +68,14 @@ export const Header: React.FC<Props> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-display font-bold text-base text-slate-100 tracking-tight">
-                    AWS <span className="text-amber-400">Core Mastery</span>
+                    AWS <span className="text-amber-400">Compute Mastery</span>
                   </span>
                   <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                    Adaptive AI
+                    EC2 • Lambda • ECS
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400 font-mono hidden sm:block">
-                  EC2 • S3 • VPC • RDS • IAM • CloudWatch
+                  Virtual Servers • Serverless • Containers • Auto Scaling
                 </p>
               </div>
             </div>
@@ -104,6 +109,26 @@ export const Header: React.FC<Props> = ({
               <Flame className="w-4 h-4 fill-orange-500" />
               <span>{userState.dailyStreak}d Streak</span>
             </div>
+
+            {/* Focus Timer Button */}
+            <button
+              onClick={onOpenFocusTimer}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition-all hover:scale-[1.02]"
+              title="Open Deep Focus Study Timer (Pomodoro)"
+            >
+              <Timer className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Focus Timer</span>
+            </button>
+
+            {/* Keyword Radar Decoder Button */}
+            <button
+              onClick={onOpenRadarLexicon}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-medium transition-all hover:scale-[1.02]"
+              title="Open AWS Exam Keyword Radar Decoder & Trigger Lexicon"
+            >
+              <Radar className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+              <span className="hidden sm:inline">Keyword Radar</span>
+            </button>
 
             {/* Tool & Budget Breakdown Button */}
             <button

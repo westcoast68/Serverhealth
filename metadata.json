@@ -1,6 +1,6 @@
 {
-  "name": "AWS Core Adaptive Exam & Gap Mastery Engine",
-  "description": "AI-powered adaptive learning engine for AWS Core Fundamentals. Automatically identifies knowledge gaps across Compute, Storage, Networking, Database, Security, and Monitoring, generating targeted quizzes, flashcards, and mock exams that prioritize weakest domains first in real time.",
+  "name": "AWS Compute Mastery Engine (EC2, Lambda, ECS)",
+  "description": "Adaptive exam preparation and architectural mastery engine focused on AWS Compute: EC2 virtual servers, Lambda serverless execution, and ECS/Fargate container orchestration. Featuring intelligent gap diagnostics, active recall flashcards, scenario quizzes, and cost-tradeoff analysis.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
